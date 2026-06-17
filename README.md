@@ -4,7 +4,7 @@
 
 **Rajon Talukdar**
 
-*June 17, 2026*
+_June 17, 2026_
 
 </div>
 
