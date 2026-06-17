@@ -1,6 +1,6 @@
 <div align="center">
 
-# Fundamentals of Backend Architecture,
+# Fundamentals of Backend Architecture
 
 **Rajon Talukdar**
 
@@ -10,69 +10,55 @@ _June 17, 2026_
 
 ---
 
-## 1. Stateful Servers!
+## 1. Stateful Servers
 
-A stateful server **remembers information** about a user **between requests**. The Server **stores session data in RAM**.
+A stateful server **remembers information** about a user **between requests**. The server **stores session data in RAM**.
 
-```
-User Login
-   ↓
-Server stores session in memory
-   ↓
-User requests profile
-   ↓
-Server remembers user from session
+```mermaid
+flowchart TD
+    A[User logs in] --> B[Server stores session in memory]
+    B --> C[User requests profile]
+    C --> D[Server remembers user from session]
 ```
 
-**Advantages**
-
-- Easy implementation
-- Traditional web applications
-
-**Disadvantages**
-
-- Difficult to scale
-- If server crashes, session may be lost
-- Load balancer must send user to same server
+| ✅ Advantages | ❌ Disadvantages |
+| --- | --- |
+| Easy to implement | Difficult to scale |
+| Fits traditional web apps | Session lost if server crashes |
+| | Load balancer must pin user to the same server |
 
 ---
 
-## 2. Stateless Servers!
+## 2. Stateless Servers
 
-A stateful server **stores no information** about a user **between requests**. Each request contains everything needed..
+A stateless server **stores no information** about a user **between requests**. Each request carries everything needed to be processed.
 
-```
-Login
-   ↓
-Server generates JWT
-   ↓
-Client stores JWT
-   ↓
-Client sends JWT on every request
+```mermaid
+flowchart TD
+    A[User logs in] --> B[Server generates JWT]
+    B --> C[Client stores JWT]
+    C --> D[Client sends JWT on every request]
+    D --> E[Server validates token, no stored session]
 ```
 
-**Advantages**
-
-- Easy horizontal scaling
-- Better for mobile apps
-- Cloud-friendly
-
-**Disadvantages**
-
-- Token management required
+| ✅ Advantages | ❌ Disadvantages |
+| --- | --- |
+| Easy horizontal scaling | Token management required |
+| Great for mobile apps | |
+| Cloud-friendly | |
 
 ---
 
-## 3. Load Balancing!
+## 3. Load Balancing
 
-When one **Server cannot handle all traffic**, **requests** are **distributed** across **multiple servers**.
+When one **server cannot handle all traffic**, **requests** are **distributed** across **multiple servers**.
 
-```
-Users
-   ↓
-Load balancer
-   ↓  ~  ↓  ~  ↓
-Server1 ~ Server2 ~ Server3
+```mermaid
+flowchart TD
+    U[Users] --> LB[Load Balancer]
+    LB --> S1[Server 1]
+    LB --> S2[Server 2]
+    LB --> S3[Server 3]
 ```
 
 **Responsibilities**
@@ -82,336 +68,252 @@ Server1 ~ Server2 ~ Server3
 - Failover
 - SSL termination
 
-**Popular load balancers**
-
-- Nginx
-- HAProxy
-- Traefik
-- Envoy
+**Popular load balancers:** Nginx · HAProxy · Traefik · Envoy
 
 ---
 
-## 4. Nginx Example!
+## 4. Nginx Example
 
-Nginx is commonly used as: **Reverse proxy**, **Load balancer**, **Static file server**.
+Nginx is commonly used as a **reverse proxy**, **load balancer**, and **static file server**.
 
-```
-Client
-   ↓
-Ngnix
-   ↓
-Node.js App
+```mermaid
+flowchart TD
+    C[Client] --> N[Nginx]
+    N --> A[Node.js App]
 ```
 
-**Example:**
+**Example config:**
 
 ```nginx
-Upstream backend {
-        Server 10.0.0.1:3000;
-        Server 10.0.0.2:3000;
-        Server 10.0.0.3:3000;
+upstream backend {
+    server 10.0.0.1:3000;
+    server 10.0.0.2:3000;
+    server 10.0.0.3:3000;
 }
-Server {
-        Listen 80;
-        Location / {
-                Proxy_pass http://backend;
-        }
+
+server {
+    listen 80;
+    location / {
+        proxy_pass http://backend;
+    }
 }
 ```
 
 ---
 
-## 5. Different Types of Scaling!
+## 5. Different Types of Scaling
 
-**1. Vertical Scaling:** **Increase power** of one **server**.
+### Vertical Scaling — increase the power of one server
 
-```
-4 CPU to 16 CPU  ||  8gb RAM to 16gb RAM
-```
-
-**Advantages**
-
-- Easy
-
-**Disadvantages**
-
-- Expensive
-- Hardware limits
-
-**2. Horizontal Scaling:** **Add** more **servers**.
-
-```
-Users
-   ↓
-Load Balancer
-   ↓
-Multiple Servers
+```mermaid
+flowchart LR
+    A["Small server<br/>4 CPU · 8 GB RAM"] -->|upgrade hardware| B["Bigger server<br/>16 CPU · 16 GB RAM"]
 ```
 
-**Advantages**
+| ✅ Advantages | ❌ Disadvantages |
+| --- | --- |
+| Easy | Expensive |
+| | Hardware limits |
 
-- Highly scalable
-- Fault tolerant
+### Horizontal Scaling — add more servers
+
+```mermaid
+flowchart TD
+    U[Users] --> LB[Load Balancer]
+    LB --> S1[Server 1]
+    LB --> S2[Server 2]
+    LB --> S3[Server N]
+```
+
+| ✅ Advantages | ❌ Disadvantages |
+| --- | --- |
+| Highly scalable | More moving parts |
+| Fault tolerant | |
 
 ---
 
-## 6. Microservices Architecture!
+## 6. Microservices Architecture
 
-Instead of one huge Application - Split into services.
+Instead of one huge application, split it into independent services.
 
-```
-Monolith
-
-User Service | Order Service | Payment Service | Notification Service
-```
-
-**Architecture:**
-
-```
-Mobile App
-   ↓
-API Gateway
-   ↓
-┌─────────────┐
-│ User Service│
-├─────────────┤
-│Order Service│
-├─────────────┤
-│Payment      │
-└─────────────┘
+```mermaid
+flowchart TD
+    M[Mobile App] --> GW[API Gateway]
+    GW --> US[User Service]
+    GW --> OS[Order Service]
+    GW --> PS[Payment Service]
+    GW --> NS[Notification Service]
 ```
 
-**Advantages**
-
-- Independent deployment
-- Team ownership
-- Better scalability
-
-**Disadvantages**
-
-- Complexity
-- Network communication
-- Monitoring challenges
+| ✅ Advantages | ❌ Disadvantages |
+| --- | --- |
+| Independent deployment | Higher complexity |
+| Clear team ownership | Network communication overhead |
+| Better scalability | Harder to monitor |
 
 ---
 
-## 7. Authentication!
+## 7. Authentication
 
-Authentication: Who you are. Authorization: What can you do?
+**Authentication:** *Who you are.* **Authorization:** *What you can do.*
 
-```
-Login
-   ↓
-Verify credentials
-   ↓
-Issue Access Token
-   ↓
-Access protected APIs
+```mermaid
+flowchart TD
+    A[Login] --> B[Verify credentials]
+    B --> C[Issue access token]
+    C --> D[Access protected APIs]
 ```
 
-**Modern auth stack:**
+**Modern auth stack — refreshing an expired token:**
 
-```
-Mobile App
-   ↓
-Access Token
-   ↓
-API
-
-Expired?
-   ↓
-Refresh Token
-   ↓
-New Access Token
+```mermaid
+flowchart TD
+    A[Mobile App] --> B[Send access token]
+    B --> C{Token expired?}
+    C -->|No| D[API responds]
+    C -->|Yes| E[Send refresh token]
+    E --> F[Issue new access token]
+    F --> B
 ```
 
 ---
 
-## 8. File Serving!
+## 8. File Serving
 
-File can be: Images, Videos, PDFs, Documents
+Files can be images, videos, PDFs, or documents.
 
-**Bad Approach:**
+### ❌ Bad approach — store files inside the API server
 
-Store files inside API server.
-
-```
-Express Server
-├─ API
-└─ Images
+```mermaid
+flowchart TD
+    E[Express Server] --> API[API]
+    E --> IMG[Images]
 ```
 
-Happy traffic can overload API server
+> Heavy traffic can overload the API server.
 
-**Batter Approach:**
+### ✅ Better approach — serve through a CDN + object storage
 
-```
-User
-   ↓
-CDN
-   ↓
-Object Storage
+```mermaid
+flowchart TD
+    U[User] --> CDN[CDN]
+    CDN --> OS[Object Storage]
 ```
 
-**Example:**
-
-```
-Amazon Web Services S3
-Cloudflare R2
-Google cloud Storage
-```
+**Examples:** Amazon S3 · Cloudflare R2 · Google Cloud Storage
 
 **Typical upload flow:**
 
-```
-Mobile app
-   ↓
-backend
-   ↓
-Generate Upload URL
-   ↓
-Direct Upload to Storage
+```mermaid
+flowchart TD
+    A[Mobile App] --> B[Backend]
+    B --> C[Generate signed upload URL]
+    C --> D[Client uploads directly to storage]
 ```
 
 ---
 
-## 9. Event Broker!
+## 9. Event Broker
 
-An event broker allows services to communicate asynchronously
+An event broker lets services communicate **asynchronously**.
 
-**Without broker:**
+### Without a broker
 
-```
-Order Service
-   ↓
-Notification Service
-```
-
-If notification fail => Order may fail
-
-**With broker:**
-
-```
-Order service
-   ↓
-Event Broker
-   ↓
-Notification Service
+```mermaid
+flowchart LR
+    O[Order Service] --> N[Notification Service]
 ```
 
-**Popular brokers:**
+> If the notification fails, the order may fail too.
 
-```
-RabbitMQ
-Apache Kafka
-Redis Pub/Sub
+### With a broker
+
+```mermaid
+flowchart LR
+    O[Order Service] --> B[Event Broker] --> N[Notification Service]
 ```
 
-**Example:**
+**Popular brokers:** RabbitMQ · Apache Kafka · Redis Pub/Sub
 
-```
-Order Created
-   ↓
-Kafka Topic
-   ↓
-Email service | Analytics service | Inventory service
+**Example — one event, many consumers:**
+
+```mermaid
+flowchart TD
+    A[Order Created] --> K[Kafka Topic]
+    K --> E[Email Service]
+    K --> AN[Analytics Service]
+    K --> I[Inventory Service]
 ```
 
 ---
 
-## 10. Caching and CDNs!
+## 10. Caching and CDNs
 
-Caching: Store frequently accessed data.
+**Caching:** store frequently accessed data close to the application.
 
-**Without cache:**
+### Without cache — every request hits the database
 
-```
-Request
-   ↓
-Database
-```
-
-Every request hits DB
-
-**With cache:**
-
-```
-Request
-   ↓
-Cache
-   ↓
-Database (if miss)
+```mermaid
+flowchart LR
+    R[Request] --> DB[(Database)]
 ```
 
-**Popular cache:**
+### With cache — database is only hit on a miss
 
-```
-Radis
-```
-
-CDN: stores files near users globally
-
-```
-Origin server
-   ↓
-CDN
-   ↓
-Users Worldwide
+```mermaid
+flowchart LR
+    R[Request] --> C{Cache hit?}
+    C -->|Hit| RES[Return cached data]
+    C -->|Miss| DB[(Database)]
+    DB --> C
 ```
 
-**Benefits:**
+**Popular cache:** Redis
 
-```
-Faster images
-Lower server load
-Global performance
+### CDN — store files near users globally
+
+```mermaid
+flowchart TD
+    O[Origin Server] --> CDN[CDN]
+    CDN --> U[Users Worldwide]
 ```
 
-**Popular CDNs:**
+**Benefits:** faster images · lower server load · global performance
 
-```
-CLoudflare
-Amazon Web Services
-Fastly
+**Popular CDNs:** Cloudflare · Amazon CloudFront · Fastly
+
+---
+
+## 11. Rate Limiting
+
+Prevents abuse and protects servers by capping how many requests a client can make.
+
+```mermaid
+flowchart TD
+    R[Incoming request] --> C{Within limit?<br/>e.g. 100 req/min}
+    C -->|Yes| OK[200 OK — process request]
+    C -->|No| NO[429 Too Many Requests]
 ```
 
 ---
 
-## 11. Rate Limiting!
-
-Prevents abuse and protects servers
-
-**Example:**
-
-```
-100 request per minute = 429 too many requests
-```
-
----
-
-## 12. How everything fits together!
+## 12. How Everything Fits Together
 
 A modern production backend often looks like this:
 
-```
-Mobile App
-   ↓
-Nginx
-Load Balancer
-   ↓
-API Servers
-   ↓
-┌───────────┬───────────┐
-│           │           │
-Authentication  Cache  Database
-│           (Redis)     │
-└───────────┴───────────┘
-   ↓
-Event Broker
-   ↓
-Email / Analytics / Notifications
-   ↓
-Object Storage
-   ↓
-CDN
+```mermaid
+flowchart TD
+    M[Mobile App] --> N[Nginx / Load Balancer]
+    N --> API[API Servers]
+
+    API --> AUTH[Authentication]
+    API --> CACHE[(Cache · Redis)]
+    API --> DB[(Database)]
+
+    API --> EB[Event Broker]
+    EB --> W[Email / Analytics / Notifications]
+
+    API --> OBJ[Object Storage]
+    OBJ --> CDN[CDN]
+    CDN --> U[Users Worldwide]
 ```
